@@ -42,6 +42,16 @@ class AddonBehavior(unittest.TestCase):
         self.lua.execute('playerLevel = 60; send("PLAYER_LEVEL_UP")')
         self.assertFalse(bar['shown'])
 
+    def test_tracked_quest_scope_and_combat_xp_updates(self):
+        self.lua.execute((ROOT / 'tests' / 'client_stub.lua').read_text())
+        self.lua.execute('SimpleXPBarForeverDB = {trackedOnly=true}; quests = {{questID=1, complete=true, watched=true, reward=1500}, {questID=2, complete=true, reward=500}}')
+        self.lua.execute((ROOT / 'SimpleXPBarForever' / 'SimpleXPBarForever.lua').read_text(), 'SimpleXPBarForever', self.ns)
+        self.lua.globals().send('ADDON_LOADED', 'SimpleXPBarForever')
+        bar = self.lua.globals().SimpleXPBarForeverFrame
+        self.assertIn('Quests 1500', bar['text']['value'])
+        self.lua.execute('combatState = true; send("PLAYER_REGEN_DISABLED"); xp = 6000; send("PLAYER_XP_UPDATE")')
+        self.assertIn('XP 6000 / 10000', bar['text']['value'])
+
 
 if __name__ == '__main__':
     unittest.main()

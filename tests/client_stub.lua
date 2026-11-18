@@ -54,6 +54,8 @@ function C_QuestLog.GetNumQuestLogEntries() return #quests, #quests end
 function C_QuestLog.GetInfo(i) return quests[i] end
 function C_QuestLog.IsComplete(id) for _,q in ipairs(quests) do if q.questID == id then return q.complete end end end
 function C_QuestLog.GetQuestWatchType(id) for _,q in ipairs(quests) do if q.questID == id then return q.watched and 0 or nil end end end
+function C_QuestLog.GetNumQuestWatches() local n=0; for _,q in ipairs(quests) do if q.watched then n=n+1 end end; return n end
+function C_QuestLog.GetQuestIDForQuestWatchIndex(index) local n=0; for _,q in ipairs(quests) do if q.watched then n=n+1; if n==index then return q.questID end end end end
 function GetQuestLogRewardXP(id) for _,q in ipairs(quests) do if q.questID == id then return q.reward end end end
 function send(event, arg)
     for _, f in ipairs(frames) do if f.events[event] and f.scripts.OnEvent then f.scripts.OnEvent(f, event, arg) end end

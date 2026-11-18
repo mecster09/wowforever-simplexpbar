@@ -22,6 +22,20 @@ end
 local function combat() return InCombatLockdown() end
 local function questXP()
     local total, incomplete = 0, false
+    local function addQuest(id)
+        if C_QuestLog.IsComplete(id) then
+            local reward = GetQuestLogRewardXP and GetQuestLogRewardXP(id)
+            if type(reward) == "number" and not (issecretvalue and issecretvalue(reward)) then total = total + reward
+            else incomplete = true end
+        end
+    end
+    if settings.trackedOnly then
+        for index = 1, C_QuestLog.GetNumQuestWatches() do
+            local id = C_QuestLog.GetQuestIDForQuestWatchIndex(index)
+            if id then addQuest(id) else incomplete = true end
+        end
+        return total, incomplete
+    end
     local count, questCount = C_QuestLog.GetNumQuestLogEntries()
     local seen = 0
     for index = 1, count do
@@ -29,11 +43,7 @@ local function questXP()
         if info and not info.isHeader and info.questID then
             seen = seen + 1
             local id = info.questID
-            if C_QuestLog.IsComplete(id) and (not settings.trackedOnly or C_QuestLog.GetQuestWatchType(id) ~= nil) then
-                local reward = GetQuestLogRewardXP and GetQuestLogRewardXP(id)
-                if type(reward) == "number" and not (issecretvalue and issecretvalue(reward)) then total = total + reward
-                else incomplete = true end
-            end
+            addQuest(id)
         elseif info and info.isHeader and info.isCollapsed then
             incomplete = true
         end
