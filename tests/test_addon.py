@@ -30,6 +30,18 @@ class AddonBehavior(unittest.TestCase):
         compile_lua = self.lua.eval('function(source) return load(source) end')
         self.assertTrue(callable(compile_lua(source)))
 
+    def test_display_updates_for_completed_quests_and_level_cap(self):
+        self.lua.execute((ROOT / 'tests' / 'client_stub.lua').read_text())
+        self.lua.execute('quests = {{questID=1, complete=true, reward=1500}, {questID=2, complete=true}}')
+        self.lua.execute((ROOT / 'SimpleXPBarForever' / 'SimpleXPBarForever.lua').read_text(), 'SimpleXPBarForever', self.ns)
+        self.lua.globals().send('ADDON_LOADED', 'SimpleXPBarForever')
+        bar = self.lua.globals().SimpleXPBarForeverFrame
+        self.assertIn('Quests 1500 (incomplete)', bar['text']['value'])
+        self.lua.execute('xp = 5000; send("PLAYER_XP_UPDATE")')
+        self.assertIn('XP 5000 / 10000', bar['text']['value'])
+        self.lua.execute('playerLevel = 60; send("PLAYER_LEVEL_UP")')
+        self.assertFalse(bar['shown'])
+
 
 if __name__ == '__main__':
     unittest.main()

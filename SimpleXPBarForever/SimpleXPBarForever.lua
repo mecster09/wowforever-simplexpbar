@@ -64,12 +64,18 @@ local function setSegment(texture, from, to, color)
     texture:Show()
 end
 
+local function hex(color)
+    return string.format("%02x%02x%02x", math.floor(color[1] * 255 + 0.5), math.floor(color[2] * 255 + 0.5), math.floor(color[3] * 255 + 0.5))
+end
+
 local function refresh()
     if not settings then return end
     local current, maximum = UnitXP("player"), UnitXPMax("player")
     local rested = GetXPExhaustion() or 0
     if issecretvalue and (issecretvalue(current) or issecretvalue(maximum) or issecretvalue(rested)) then return end
-    local visible = settings.visible and maximum and maximum > 0
+    local levelCap = GetMaxPlayerLevel and GetMaxPlayerLevel()
+    local atCap = levelCap and UnitLevel("player") >= levelCap
+    local visible = settings.visible and not atCap and maximum and maximum > 0
     if not visible then bar:Hide(); defaultBar(true); return end
     bar:Show()
     defaultBar(false)
@@ -80,7 +86,8 @@ local function refresh()
     setSegment(bar.rested, p.current, p.restedEnd, colors.rested)
     setSegment(bar.quest, p.current, p.questEnd, colors.quest)
     setSegment(bar.overlap, p.current, p.overlapEnd, colors.overlap)
-    bar.text:SetFormattedText("XP %s / %s (%.1f%%)   |cff82c6ffRested %s|r   |cff83e581Quests %s%s|r", BreakUpLargeNumbers(current), BreakUpLargeNumbers(maximum), 100 * current / maximum, BreakUpLargeNumbers(rested), BreakUpLargeNumbers(quests), incomplete and " (incomplete)" or "")
+    local currentColor = rested > 0 and colors.restedCurrent or colors.unrestedCurrent
+    bar.text:SetFormattedText("|cff%sXP %s / %s (%.1f%%)|r   |cff%sRested %s|r   |cff%sQuests %s%s|r", hex(currentColor), BreakUpLargeNumbers(current), BreakUpLargeNumbers(maximum), 100 * current / maximum, hex(colors.rested), BreakUpLargeNumbers(rested), hex(colors.quest), BreakUpLargeNumbers(quests), incomplete and " (incomplete)" or "")
 end
 
 local function applySettings()
@@ -105,8 +112,11 @@ local function createBar()
     bar:SetScript("OnDragStop", function(self)
         self:StopMovingOrSizing()
         if not combat() then
-            local point, _, _, x, y = self:GetPoint()
-            settings.point, settings.x, settings.y = point, x, y
+            local x, y = self:GetCenter()
+            local parentX, parentY = UIParent:GetCenter()
+            if x and y and parentX and parentY then
+                settings.point, settings.x, settings.y = "CENTER", x - parentX, y - parentY
+            end
         end
     end)
 end
