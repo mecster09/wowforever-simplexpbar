@@ -1,12 +1,12 @@
 # Simple XP Bar quest probe
 
-This temporary diagnostic compares quest IDs returned by the Forever client before and after collapsing a quest-log section. It does not change quests, toggle headers, or save data.
+This temporary diagnostic compares completed tracked and untracked quests reported by the Forever client. It does not change quests, tracking, headers, or save data.
 
 1. Copy `SXPQuestProbe` into `_forever_/Interface/AddOns/`, fully restart the game, and enable **Simple XP Bar Quest Probe**.
-2. Log in on a character with at least one active quest. Open the quest log and expand a section containing quests.
-3. Type `/sxpcheck`. Collapse that section without accepting, abandoning, completing, or turning in any quests. Type `/sxpcheck` again.
-4. Note the two count lines and whether quest IDs disappeared. `/sxpcheck reset` clears the snapshot so another section can be tested.
-5. Repeat with a section containing a completed quest, if available. Disable or remove the diagnostic when finished.
+2. Log in on a character with at least one completed quest still in the quest log. Make sure its section is expanded so this test isolates tracking behavior.
+3. Track that completed quest and type `/sxpcheck`. Note the completed tracked and untracked counts.
+4. Untrack the same completed quest without handing it in and type `/sxpcheck` again. The tracked count should decrease by one, the untracked count should increase by one, and the `all` count should stay the same. Report both lines.
+5. `/sxpcheck reset` clears the snapshot. Disable or remove the diagnostic when finished.
 
-The comparison tests the client and specific sections observed. A negative result does not prove every client version, quest type, or filter behaves the same way. The diagnostic does not inspect reward values or test combat taint.
+The displayed mode counts are diagnostic calculations, not the actual XP totals produced by the addon. Separately test collapsed sections and reward values; this probe only counts returned quest entries and does not establish combat taint safety.
 
