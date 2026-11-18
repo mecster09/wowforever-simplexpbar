@@ -1,0 +1,6 @@
+## Interface: 16001
+## Title: Simple XP Bar Quest Probe
+## Notes: Temporary read-only quest log diagnostic.
+## Version: 0.1.0
+SXPQuestProbe.lua
+
