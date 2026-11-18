@@ -1,0 +1,8 @@
+## Interface: 16001
+## Title: Simple XP Bar Forever
+## Notes: A customizable experience bar with rested and completed quest XP.
+## Version: 0.1.0
+## SavedVariables: SimpleXPBarForeverDB
+
+Model.lua
+SimpleXPBarForever.lua
